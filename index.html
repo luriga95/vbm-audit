@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#185FA5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>VBM Audit</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    :root{
+      --blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;
+      --green:#3B6D11;--green-light:#EAF3DE;
+      --red:#A32D2D;--red-light:#FCEBEB;
+      --amber:#BA7517;--amber-light:#FAEEDA;
+      --gray:#5F5E5A;--gray-light:#F1EFE8;
+      --border:#d8d8d4;--bg:#f8f8f6;--card:#ffffff;
+      --text:#1a1a1a;--text2:#666;--text3:#999;
+      --radius:10px;--radius-sm:6px;
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:var(--text);background:var(--bg);min-height:100vh}
+    .app{max-width:720px;margin:0 auto;padding-bottom:80px}
+
+    /* NAV */
+    .topbar{position:sticky;top:0;z-index:100;background:var(--blue);padding:10px 16px 0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+    .topbar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .app-title{font-size:17px;font-weight:600;color:#fff;letter-spacing:.3px}
+    .lang-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:20px;padding:4px 12px;cursor:pointer;font-size:12px;font-weight:600;color:#fff}
+    .nav{display:flex;gap:0}
+    .nav button{flex:1;padding:9px 4px 8px;border:none;background:transparent;cursor:pointer;font-size:12px;font-weight:500;color:rgba(255,255,255,.65);border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+    .nav button.active{color:#fff;border-bottom-color:#fff}
+
+    /* CARDS */
+    .section{padding:12px 12px 0}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+    .card-header{padding:10px 14px;background:#f4f6f9;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--blue-dark);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+    .card-body{padding:14px}
+
+    /* FORM FIELDS */
+    .field-grid{display:grid;gap:10px;margin-bottom:12px}
+    .fg2{grid-template-columns:1fr 1fr}
+    .fg4{grid-template-columns:1fr 1fr 1fr 1fr}
+    @media(max-width:480px){.fg4{grid-template-columns:1fr 1fr}.fg2{grid-template-columns:1fr 1fr}}
+    .field-label{font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:500}
+    input[type=text],input[type=date],input[type=time],input[type=email],input[type=month],select,textarea{
+      width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+      font-size:14px;background:#fff;color:var(--text);font-family:inherit;
+      transition:border-color .15s;-webkit-appearance:none;appearance:none}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)}
+    textarea{resize:vertical;min-height:70px;line-height:1.5}
+
+    /* CHECKLIST */
+    .check-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0ee}
+    .check-row:last-child{border-bottom:none}
+    .check-row input[type=checkbox]{width:20px;height:20px;margin-top:1px;accent-color:var(--blue);flex-shrink:0;cursor:pointer;border-radius:4px}
+    .check-row label{flex:1;font-size:13.5px;line-height:1.45;cursor:pointer;color:var(--text)}
+    .check-row input:checked+label{color:var(--red);font-weight:500}
+    .concern-tag{font-size:10px;background:var(--red-light);color:var(--red);padding:1px 6px;border-radius:10px;margin-left:6px;white-space:nowrap}
+
+    /* RESULT */
+    .result-box{padding:12px 14px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;border:2px solid transparent;margin-bottom:8px}
+    .r-exc{background:var(--green-light);border-color:#8bc34a;color:var(--green)}
+    .r-sat{background:var(--blue-light);border-color:#64b5f6;color:var(--blue)}
+    .r-con{background:var(--amber-light);border-color:#ffb74d;color:var(--amber)}
+    .r-uns{background:var(--red-light);border-color:#e57373;color:var(--red)}
+    .result-label{font-size:16px;font-weight:700}
+    .result-sub{font-size:12px;opacity:.8}
+    .scale-hint{font-size:11px;color:var(--text3);line-height:1.5}
+
+    /* SIGNATURE */
+    .sig-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:400px){.sig-wrap{grid-template-columns:1fr}}
+    .sig-area{border:2px dashed var(--border);border-radius:var(--radius-sm);height:80px;position:relative;overflow:hidden;cursor:crosshair;background:#fafafa;touch-action:none}
+    canvas.sc{position:absolute;top:0;left:0;width:100%;height:100%}
+    .sig-ph{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text3);font-size:12px;pointer-events:none;text-align:center;line-height:1.4}
+    .btn-clr{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2);margin-top:5px;font-family:inherit}
+
+    /* BUTTONS */
+    .btn-save{background:var(--blue);color:#fff;border:none;padding:14px;border-radius:var(--radius);font-weight:600;cursor:pointer;font-size:15px;width:100%;margin-top:4px;font-family:inherit;letter-spacing:.3px}
+    .btn-save:active{background:var(--blue-dark)}
+    .btn-excel{background:var(--green);color:#fff;border:none;padding:9px 14px;border-radius:var(--radius-sm);font-weight:600;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:5px;font-family:inherit}
+    .btn-pdf-sm{background:var(--red);color:#fff;border:none;padding:7px 11px;border-radius:var(--radius-sm);font-weight:600;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;font-family:inherit}
+    .btn-del{background:transparent;color:var(--red);border:1.5px solid #e57373;padding:6px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-family:inherit}
+
+    /* PHOTOS */
+    .photo-drop{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;background:#fafafa;transition:background .15s}
+    .photo-drop:active{background:#f0f0ee}
+    .photos-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .photo-thumb{width:70px;height:70px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border)}
+
+    /* RECORDS */
+    .record{padding:12px 14px;border-bottom:1px solid #f0f0ee}
+    .record:last-child{border-bottom:none}
+    .rec-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+    .rec-cell{font-size:14px;font-weight:600}
+    .rec-date{font-size:12px;color:var(--text2);margin-top:3px}
+    .rec-actions{display:flex;gap:6px;flex-shrink:0}
+    .badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;margin-left:6px}
+    .b-exc{background:var(--green-light);color:var(--green)}
+    .b-sat{background:var(--blue-light);color:var(--blue)}
+    .b-con{background:var(--amber-light);color:var(--amber)}
+    .b-uns{background:var(--red-light);color:var(--red)}
+
+    /* DASHBOARD */
+    .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+    .metric{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+    .metric-val{font-size:30px;font-weight:700;color:var(--blue)}
+    .metric-lbl{font-size:11px;color:var(--text2);margin-top:3px}
+    .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+    .bar-lbl{font-size:12px;width:155px;flex-shrink:0;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bar-track{flex:1;height:10px;background:#eee;border-radius:20px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:20px;transition:width .4s}
+    .bar-ct{font-size:12px;width:22px;text-align:right;color:var(--text2);font-weight:500}
+    .empty{text-align:center;padding:24px;color:var(--text3);font-size:13px}
+    .filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:var(--radius);font-size:14px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap}
+    .toast.show{opacity:1}
+  </style>
+  <script type="module" crossorigin src="./assets/index-D8tbB9G-.js"></script>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="app-title">⚙ VBM Audit</div>
+      <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
+    </div>
+    <nav class="nav">
+      <button class="active" onclick="showTab('form')" id="nb0">📋 Nueva VBM</button>
+      <button onclick="showTab('records')" id="nb1">📁 Registros</button>
+      <button onclick="showTab('dashboard')" id="nb2">📊 Dashboard</button>
+    </nav>
+  </div>
+
+  <!-- FORM TAB -->
+  <div id="tab-form" class="section">
+    <div class="card">
+      <div class="card-header" id="lbl-general">📋 Información General</div>
+      <div class="card-body">
+        <div class="field-grid fg4" style="margin-bottom:10px">
+          <div><div class="field-label" id="lbl-cell">Área / Celda</div><input type="text" id="fCell" placeholder="Ej. Waterjet"></div>
+          <div><div class="field-label" id="lbl-bldg">Edificio #</div><input type="text" id="fBldg"></div>
+          <div><div class="field-label" id="lbl-date">Fecha</div><input type="date" id="fDate"></div>
+          <div><div class="field-label" id="lbl-time">Hora</div><input type="time" id="fTime"></div>
+        </div>
+        <div class="field-grid fg2" style="margin-bottom:10px">
+          <div><div class="field-label" id="lbl-auditor">Auditor / Oficial</div><input type="text" id="fAuditor"></div>
+          <div><div class="field-label" id="lbl-supervisor">Supervisor</div><input type="text" id="fSupervisor"></div>
+        </div>
+        <div><div class="field-label" id="lbl-email">Correo para resumen</div><input type="email" id="fEmail" placeholder="correo@empresa.com"></div>
+      </div>
+    </div>
+
+    <div class="card"><div class="card-header" id="st-appearance">👤 Apariencia y Comportamiento</div><div class="card-body" id="cat-appearance"></div></div>
+    <div class="card"><div class="card-header" id="st-fire">🔥 Prevención de Incendios</div><div class="card-body" id="cat-fire"></div></div>
+    <div class="card"><div class="card-header" id="st-illness">🩺 Enfermedad y Lesiones</div><div class="card-body" id="cat-illness"></div></div>
+    <div class="card"><div class="card-header" id="st-glasses">👓 Lentes de Seguridad</div><div class="card-body" id="cat-glasses"></div></div>
+    <div class="card"><div class="card-header" id="st-safe">🦺 Prácticas de Trabajo Seguro</div><div class="card-body" id="cat-safe"></div></div>
+    <div class="card"><div class="card-header" id="st-housekeeping">🧹 Orden y Limpieza</div><div class="card-body" id="cat-housekeeping"></div></div>
+    <div class="card"><div class="card-header" id="st-admin">📄 Administrativo</div><div class="card-body" id="cat-admin"></div></div>
+    <div class="card"><div class="card-header" id="st-gloves">🧤 Política de Guantes</div><div class="card-body" id="cat-gloves"></div></div>
+
+    <div class="card">
+      <div class="card-header" id="lbl-result">📊 Resultado Automático</div>
+      <div class="card-body">
+        <div id="resultBox"></div>
+        <div class="scale-hint" id="lbl-scale">0 disc. = Excelente · 1-2 = Satisfactorio · 3 = Preocupación · 4+ = Insatisfactorio</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" id="lbl-remarks">💬 Observaciones</div>
+      <div class="card-body"><textarea id="fRemarks" rows="3"></textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" id="lbl-photos">📷 Fotos de Evidencia</div>
+      <div class="card-body">
+        <div class="photo-drop" onclick="document.getElementById('photoIn').click()">
+          <div style="font-size:28px">📷</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px" id="lbl-photo-hint">Toca para agregar foto</div>
+        </div>
+        <input type="file" id="photoIn" accept="image/*" capture="environment" style="display:none" multiple>
+        <div class="photos-row" id="photosGrid"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" id="lbl-sigs">✍️ Firmas</div>
+      <div class="card-body">
+        <div class="sig-wrap">
+          <div>
+            <div class="field-label" id="lbl-sig1">Auditor / Oficial</div>
+            <div class="sig-area"><canvas class="sc" id="sc1"></canvas><div class="sig-ph" id="sp1">✍️<br>Firmar aquí</div></div>
+            <button class="btn-clr" onclick="clearSig(1)" id="lbl-clear">Limpiar</button>
+          </div>
+          <div>
+            <div class="field-label" id="lbl-sig2">Supervisor</div>
+            <div class="sig-area"><canvas class="sc" id="sc2"></canvas><div class="sig-ph" id="sp2">✍️<br>Firmar aquí</div></div>
+            <button class="btn-clr" onclick="clearSig(2)" id="lbl-clear2">Limpiar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="saveAudit()" id="btnSave">💾 Guardar Auditoría</button>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- RECORDS TAB -->
+  <div id="tab-records" class="section" style="display:none">
+    <div class="card">
+      <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:15px;font-weight:600" id="lbl-records">Auditorías Registradas</div>
+          <button class="btn-excel" onclick="exportExcel()">📊 <span id="lbl-export">Exportar Excel</span></button>
+        </div>
+        <div class="filter-row">
+          <input type="month" id="filterMonth" onchange="renderRecords()" style="flex:0 0 auto">
+          <input type="text" id="filterArea" placeholder="Buscar área..." oninput="renderRecords()" style="flex:1">
+        </div>
+        <div id="recordsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard" class="section" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:600" id="lbl-dash-title">Dashboard Mensual</div>
+      <input type="month" id="dashMonth" onchange="renderDashboard()" style="font-size:12px;padding:6px 8px;width:auto">
+    </div>
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-val" id="d-total">0</div><div class="metric-lbl" id="d-lbl-total">VBM del período</div></div>
+      <div class="metric"><div class="metric-val" id="d-areas">0</div><div class="metric-lbl" id="d-lbl-areas">Áreas auditadas</div></div>
+      <div class="metric"><div class="metric-val" id="d-disc">0</div><div class="metric-lbl" id="d-lbl-disc">Discrepancias totales</div></div>
+      <div class="metric"><div class="metric-val" id="d-top" style="font-size:18px">—</div><div class="metric-lbl" id="d-lbl-top">Resultado frecuente</div></div>
+    </div>
+    <div class="card"><div class="card-header" id="d-lbl-results">Distribución de Resultados</div><div class="card-body" id="d-results"></div></div>
+    <div class="card"><div class="card-header" id="d-lbl-findings">Hallazgos más Comunes</div><div class="card-body" id="d-findings"></div></div>
+    <div class="card"><div class="card-header" id="d-lbl-cats">Discrepancias por Categoría</div><div class="card-body" id="d-cats"></div></div>
+    <div class="card"><div class="card-header" id="d-lbl-areaslist">Áreas Auditadas</div><div class="card-body" id="d-areaslist"></div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+</body>
+</html>
