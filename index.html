@@ -73,7 +73,7 @@
     /* SIGNATURE */
     .sig-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media(max-width:400px){.sig-wrap{grid-template-columns:1fr}}
-    .sig-area{border:2px dashed var(--border);border-radius:var(--radius-sm);height:80px;position:relative;overflow:hidden;cursor:crosshair;background:#fafafa;touch-action:none}
+    .sig-area{border:2px dashed var(--border);border-radius:var(--radius-sm);height:140px;position:relative;overflow:hidden;cursor:crosshair;background:#fafafa;touch-action:none}
     canvas.sc{position:absolute;top:0;left:0;width:100%;height:100%}
     .sig-ph{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text3);font-size:12px;pointer-events:none;text-align:center;line-height:1.4}
     .btn-clr{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2);margin-top:5px;font-family:inherit}
@@ -121,7 +121,7 @@
     .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:var(--radius);font-size:14px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap}
     .toast.show{opacity:1}
   </style>
-  <script type="module" crossorigin src="./assets/index-D8tbB9G-.js"></script>
+  <script type="module" crossorigin src="./assets/index-CqqNo6Xt.js"></script>
 </head>
 <body>
 <div class="app">
@@ -185,7 +185,7 @@
           <div style="font-size:28px">📷</div>
           <div style="font-size:13px;color:var(--text2);margin-top:4px" id="lbl-photo-hint">Toca para agregar foto</div>
         </div>
-        <input type="file" id="photoIn" accept="image/*" capture="environment" style="display:none" multiple>
+        <input type="file" id="photoIn" accept="image/*" style="display:none" multiple>
         <div class="photos-row" id="photosGrid"></div>
       </div>
     </div>
@@ -196,12 +196,12 @@
         <div class="sig-wrap">
           <div>
             <div class="field-label" id="lbl-sig1">Auditor / Oficial</div>
-            <div class="sig-area"><canvas class="sc" id="sc1"></canvas><div class="sig-ph" id="sp1">✍️<br>Firmar aquí</div></div>
+            <div class="sig-area" id="sigWrap1"><canvas class="sc" id="sc1"></canvas><div class="sig-ph" id="sp1">✍️<br>Firmar aquí</div></div>
             <button class="btn-clr" onclick="clearSig(1)" id="lbl-clear">Limpiar</button>
           </div>
           <div>
             <div class="field-label" id="lbl-sig2">Supervisor</div>
-            <div class="sig-area"><canvas class="sc" id="sc2"></canvas><div class="sig-ph" id="sp2">✍️<br>Firmar aquí</div></div>
+            <div class="sig-area" id="sigWrap2"><canvas class="sc" id="sc2"></canvas><div class="sig-ph" id="sp2">✍️<br>Firmar aquí</div></div>
             <button class="btn-clr" onclick="clearSig(2)" id="lbl-clear2">Limpiar</button>
           </div>
         </div>
